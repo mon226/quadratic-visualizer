@@ -1,25 +1,305 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Pause, RotateCcw } from 'lucide-react';
 
-function App() {
+export default function QuadraticVisualizer() {
+  const [equation, setEquation] = useState('x^2-(2*a-1)*x+a^2');
+  const [xMin, setXMin] = useState(-5);
+  const [xMax, setXMax] = useState(5);
+  const [yMin, setYMin] = useState(-5);
+  const [yMax, setYMax] = useState(10);
+  const [aMin, setAMin] = useState(-2);
+  const [aMax, setAMax] = useState(2);
+  const [currentA, setCurrentA] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const canvasRef = useRef(null);
+  const animationRef = useRef(null);
+
+  // Parse and evaluate the equation
+  const evaluateEquation = (x, a) => {
+    try {
+      // Replace ^ with ** for exponentiation
+      let expr = equation.replace(/\^/g, '**');
+      // Replace a with the actual value
+      expr = expr.replace(/a/g, `(${a})`);
+      // Replace x with the actual value
+      expr = expr.replace(/x/g, `(${x})`);
+      // Evaluate the expression
+      return eval(expr);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  // Draw the graph
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+
+    // Transform coordinates
+    const toCanvasX = (x) => ((x - xMin) / (xMax - xMin)) * width;
+    const toCanvasY = (y) => height - ((y - yMin) / (yMax - yMin)) * height;
+
+    // Draw grid
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+
+    // Vertical grid lines
+    const xStep = (xMax - xMin) / 10;
+    for (let x = Math.ceil(xMin / xStep) * xStep; x <= xMax; x += xStep) {
+      ctx.beginPath();
+      ctx.moveTo(toCanvasX(x), 0);
+      ctx.lineTo(toCanvasX(x), height);
+      ctx.stroke();
+    }
+
+    // Horizontal grid lines
+    const yStep = (yMax - yMin) / 10;
+    for (let y = Math.ceil(yMin / yStep) * yStep; y <= yMax; y += yStep) {
+      ctx.beginPath();
+      ctx.moveTo(0, toCanvasY(y));
+      ctx.lineTo(width, toCanvasY(y));
+      ctx.stroke();
+    }
+
+    // Draw axes (thicker and black)
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+
+    // Y-axis
+    if (xMin <= 0 && xMax >= 0) {
+      ctx.beginPath();
+      ctx.moveTo(toCanvasX(0), 0);
+      ctx.lineTo(toCanvasX(0), height);
+      ctx.stroke();
+    }
+
+    // X-axis
+    if (yMin <= 0 && yMax >= 0) {
+      ctx.beginPath();
+      ctx.moveTo(0, toCanvasY(0));
+      ctx.lineTo(width, toCanvasY(0));
+      ctx.stroke();
+    }
+
+    // Draw the function
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+
+    let started = false;
+    const numPoints = 500;
+    for (let i = 0; i <= numPoints; i++) {
+      const x = xMin + (i / numPoints) * (xMax - xMin);
+      const y = evaluateEquation(x, currentA);
+
+      if (y !== null && !isNaN(y) && isFinite(y)) {
+        const canvasX = toCanvasX(x);
+        const canvasY = toCanvasY(y);
+
+        if (canvasY >= -10 && canvasY <= height + 10) {
+          if (!started) {
+            ctx.moveTo(canvasX, canvasY);
+            started = true;
+          } else {
+            ctx.lineTo(canvasX, canvasY);
+          }
+        } else {
+          started = false;
+        }
+      }
+    }
+    ctx.stroke();
+
+    // Draw current a value
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.fillText(`a = ${currentA.toFixed(3)}`, 10, 25);
+
+  }, [equation, xMin, xMax, yMin, yMax, currentA]);
+
+  // Animation loop
+  useEffect(() => {
+    if (isAnimating) {
+      const animate = () => {
+        setCurrentA((prev) => {
+          const next = prev + (aMax - aMin) / 200;
+          if (next > aMax) {
+            return aMin;
+          }
+          return next;
+        });
+        animationRef.current = requestAnimationFrame(animate);
+      };
+      animationRef.current = requestAnimationFrame(animate);
+    } else {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    }
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isAnimating, aMin, aMax]);
+
+  const handleReset = () => {
+    setCurrentA(aMin);
+    setIsAnimating(false);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+          2次関数グラフビジュアライザー
+        </h1>
+
+        <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            関数式（yを除く）
+          </label>
+          <input
+            type="text"
+            value={equation}
+            onChange={(e) => setEquation(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="例: x^2-(2*a-1)*x+a^2"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            ※ べき乗は ^ 、掛け算は * を使用（例: 2*a, x^2）
+          </p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
+          <canvas
+            ref={canvasRef}
+            width={600}
+            height={600}
+            className="w-full border border-gray-300 rounded"
+          />
+        </div>
+
+        <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              onClick={() => setIsAnimating(!isAnimating)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition"
+            >
+              {isAnimating ? <Pause size={20} /> : <Play size={20} />}
+              {isAnimating ? '一時停止' : '再生'}
+            </button>
+            <button
+              onClick={handleReset}
+              className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center transition"
+            >
+              <RotateCcw size={20} />
+            </button>
+          </div>
+
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            aの値: {currentA.toFixed(3)}
+          </label>
+          <input
+            type="range"
+            min={aMin}
+            max={aMax}
+            step={(aMax - aMin) / 100}
+            value={currentA}
+            onChange={(e) => {
+              setCurrentA(parseFloat(e.target.value));
+              setIsAnimating(false);
+            }}
+            className="w-full"
+          />
+        </div>
+
+        <div className="bg-white rounded-lg shadow-lg p-4">
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="w-full text-left font-semibold text-gray-700 mb-3 flex items-center justify-between"
+          >
+            設定
+            <span className="text-xl">{showSettings ? '−' : '+'}</span>
+          </button>
+
+          {showSettings && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">X軸 最小</label>
+                  <input
+                    type="number"
+                    value={xMin}
+                    onChange={(e) => setXMin(parseFloat(e.target.value))}
+                    className="w-full px-2 py-1 border border-gray-300 rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">X軸 最大</label>
+                  <input
+                    type="number"
+                    value={xMax}
+                    onChange={(e) => setXMax(parseFloat(e.target.value))}
+                    className="w-full px-2 py-1 border border-gray-300 rounded"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Y軸 最小</label>
+                  <input
+                    type="number"
+                    value={yMin}
+                    onChange={(e) => setYMin(parseFloat(e.target.value))}
+                    className="w-full px-2 py-1 border border-gray-300 rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Y軸 最大</label>
+                  <input
+                    type="number"
+                    value={yMax}
+                    onChange={(e) => setYMax(parseFloat(e.target.value))}
+                    className="w-full px-2 py-1 border border-gray-300 rounded"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">a 最小</label>
+                  <input
+                    type="number"
+                    value={aMin}
+                    onChange={(e) => setAMin(parseFloat(e.target.value))}
+                    className="w-full px-2 py-1 border border-gray-300 rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">a 最大</label>
+                  <input
+                    type="number"
+                    value={aMax}
+                    onChange={(e) => setAMax(parseFloat(e.target.value))}
+                    className="w-full px-2 py-1 border border-gray-300 rounded"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
-
-export default App;

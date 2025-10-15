@@ -197,15 +197,18 @@ export default function QuadraticVisualizer() {
 
         <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            関数式（yを除く）
+            関数式
           </label>
-          <input
-            type="text"
-            value={equation}
-            onChange={(e) => setEquation(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="例: x^2-(2*a-1)*x+a^2"
-          />
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold">y =</span>
+            <input
+              type="text"
+              value={equation}
+              onChange={(e) => setEquation(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="例: x^2-(2*a-1)*x+a^2"
+            />
+          </div>
           <p className="text-xs text-gray-500 mt-1">
             ※ べき乗は ^ 、掛け算は * を使用（例: 2*a, x^2）
           </p>
@@ -306,13 +309,13 @@ export default function QuadraticVisualizer() {
                 <NumberStepper
                   value={tempAMin}
                   onChange={setTempAMin}
-                  step={0.1}
+                  step={0.5}
                   label="a 最小"
                 />
                 <NumberStepper
                   value={tempAMax}
                   onChange={setTempAMax}
-                  step={0.1}
+                  step={0.5}
                   label="a 最大"
                 />
               </div>

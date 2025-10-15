@@ -12,6 +12,15 @@ export default function QuadraticVisualizer() {
   const [currentA, setCurrentA] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  
+  // Temporary settings state
+  const [tempXMin, setTempXMin] = useState(-5);
+  const [tempXMax, setTempXMax] = useState(5);
+  const [tempYMin, setTempYMin] = useState(-5);
+  const [tempYMax, setTempYMax] = useState(10);
+  const [tempAMin, setTempAMin] = useState(-2);
+  const [tempAMax, setTempAMax] = useState(2);
+  
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
 
@@ -225,7 +234,18 @@ export default function QuadraticVisualizer() {
 
         <div className="bg-white rounded-lg shadow-lg p-4">
           <button
-            onClick={() => setShowSettings(!showSettings)}
+            onClick={() => {
+              setShowSettings(!showSettings);
+              // Sync temp values when opening settings
+              if (!showSettings) {
+                setTempXMin(xMin);
+                setTempXMax(xMax);
+                setTempYMin(yMin);
+                setTempYMax(yMax);
+                setTempAMin(aMin);
+                setTempAMax(aMax);
+              }
+            }}
             className="w-full text-left font-semibold text-gray-700 mb-3 flex items-center justify-between"
           >
             設定
@@ -239,8 +259,8 @@ export default function QuadraticVisualizer() {
                   <label className="block text-sm text-gray-600 mb-1">X軸 最小</label>
                   <input
                     type="number"
-                    value={xMin}
-                    onChange={(e) => setXMin(parseFloat(e.target.value))}
+                    value={tempXMin}
+                    onChange={(e) => setTempXMin(parseFloat(e.target.value))}
                     className="w-full px-2 py-1 border border-gray-300 rounded"
                   />
                 </div>
@@ -248,8 +268,8 @@ export default function QuadraticVisualizer() {
                   <label className="block text-sm text-gray-600 mb-1">X軸 最大</label>
                   <input
                     type="number"
-                    value={xMax}
-                    onChange={(e) => setXMax(parseFloat(e.target.value))}
+                    value={tempXMax}
+                    onChange={(e) => setTempXMax(parseFloat(e.target.value))}
                     className="w-full px-2 py-1 border border-gray-300 rounded"
                   />
                 </div>
@@ -260,8 +280,8 @@ export default function QuadraticVisualizer() {
                   <label className="block text-sm text-gray-600 mb-1">Y軸 最小</label>
                   <input
                     type="number"
-                    value={yMin}
-                    onChange={(e) => setYMin(parseFloat(e.target.value))}
+                    value={tempYMin}
+                    onChange={(e) => setTempYMin(parseFloat(e.target.value))}
                     className="w-full px-2 py-1 border border-gray-300 rounded"
                   />
                 </div>
@@ -269,8 +289,8 @@ export default function QuadraticVisualizer() {
                   <label className="block text-sm text-gray-600 mb-1">Y軸 最大</label>
                   <input
                     type="number"
-                    value={yMax}
-                    onChange={(e) => setYMax(parseFloat(e.target.value))}
+                    value={tempYMax}
+                    onChange={(e) => setTempYMax(parseFloat(e.target.value))}
                     className="w-full px-2 py-1 border border-gray-300 rounded"
                   />
                 </div>
@@ -281,8 +301,8 @@ export default function QuadraticVisualizer() {
                   <label className="block text-sm text-gray-600 mb-1">a 最小</label>
                   <input
                     type="number"
-                    value={aMin}
-                    onChange={(e) => setAMin(parseFloat(e.target.value))}
+                    value={tempAMin}
+                    onChange={(e) => setTempAMin(parseFloat(e.target.value))}
                     className="w-full px-2 py-1 border border-gray-300 rounded"
                   />
                 </div>
@@ -290,12 +310,30 @@ export default function QuadraticVisualizer() {
                   <label className="block text-sm text-gray-600 mb-1">a 最大</label>
                   <input
                     type="number"
-                    value={aMax}
-                    onChange={(e) => setAMax(parseFloat(e.target.value))}
+                    value={tempAMax}
+                    onChange={(e) => setTempAMax(parseFloat(e.target.value))}
                     className="w-full px-2 py-1 border border-gray-300 rounded"
                   />
                 </div>
               </div>
+
+              <button
+                onClick={() => {
+                  setXMin(tempXMin);
+                  setXMax(tempXMax);
+                  setYMin(tempYMin);
+                  setYMax(tempYMax);
+                  setAMin(tempAMin);
+                  setAMax(tempAMax);
+                  // Reset current A if it's outside the new range
+                  if (currentA < tempAMin || currentA > tempAMax) {
+                    setCurrentA(tempAMin);
+                  }
+                }}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition mt-4"
+              >
+                設定を保存
+              </button>
             </div>
           )}
         </div>

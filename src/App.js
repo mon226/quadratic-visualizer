@@ -14,8 +14,8 @@ export default function QuadraticVisualizer() {
   const [showSettings, setShowSettings] = useState(false);
   const [showEquationInput, setShowEquationInput] = useState(false);
   const [useRange, setUseRange] = useState(false);
-  const [rangeMin, setRangeMin] = useState(0);
-  const [rangeMax, setRangeMax] = useState(4);
+  const [rangeMin, setRangeMin] = useState('0');
+  const [rangeMax, setRangeMax] = useState('4');
   
   // Temporary settings state
   const [tempXMin, setTempXMin] = useState(-5);
@@ -25,26 +25,44 @@ export default function QuadraticVisualizer() {
   const [tempAMin, setTempAMin] = useState(-2);
   const [tempAMax, setTempAMax] = useState(2);
   const [tempUseRange, setTempUseRange] = useState(false);
-  const [tempRangeMin, setTempRangeMin] = useState(0);
-  const [tempRangeMax, setTempRangeMax] = useState(4);
+  const [tempRangeMin, setTempRangeMin] = useState('0');
+  const [tempRangeMax, setTempRangeMax] = useState('4');
   
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
 
   // Number stepper component
-  const NumberStepper = ({ value, onChange, step = 1, label }) => (
+  const NumberStepper = ({ value, onChange, step = 1, label, allowString = false }) => (
     <div>
       <label className="block text-sm text-gray-600 mb-1">{label}</label>
       <div className="flex items-center justify-center gap-2">
         <button
-          onClick={() => onChange(value - step)}
+          onClick={() => {
+            if (allowString && value === 'a') return;
+            const numValue = parseFloat(value);
+            if (!isNaN(numValue)) {
+              onChange(String(numValue - step));
+            }
+          }}
           className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center transition"
         >
           ◁
         </button>
-        <div className="w-16 text-center font-semibold">{value}</div>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-16 text-center font-semibold ${allowString ? 'border rounded px-1' : ''}`}
+          disabled={!allowString}
+        />
         <button
-          onClick={() => onChange(value + step)}
+          onClick={() => {
+            if (allowString && value === 'a') return;
+            const numValue = parseFloat(value);
+            if (!isNaN(numValue)) {
+              onChange(String(numValue + step));
+            }
+          }}
           className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center transition"
         >
           ▷
@@ -113,10 +131,17 @@ export default function QuadraticVisualizer() {
     const toCanvasX = (x) => ((x - xMin) / (xMax - xMin)) * width;
     const toCanvasY = (y) => height - ((y - yMin) / (yMax - yMin)) * height;
 
+    // Helper function to evaluate range value
+    const evaluateRangeValue = (value, a) => {
+      if (value === 'a') return a;
+      const num = parseFloat(value);
+      return isNaN(num) ? 0 : num;
+    };
+
     // Draw range highlight if enabled
     if (useRange) {
-      const rangeStartX = Math.max(rangeMin, xMin);
-      const rangeEndX = Math.min(rangeMax, xMax);
+      const rangeStartX = Math.max(evaluateRangeValue(rangeMin, currentA), xMin);
+      const rangeEndX = Math.min(evaluateRangeValue(rangeMax, currentA), xMax);
       
       if (rangeStartX < rangeEndX) {
         ctx.fillStyle = 'rgba(255, 235, 59, 0.3)'; // Yellow with 30% opacity
@@ -243,8 +268,8 @@ export default function QuadraticVisualizer() {
 
     // Draw min/max points if range is enabled
     if (useRange) {
-      const rangeStartX = Math.max(rangeMin, xMin);
-      const rangeEndX = Math.min(rangeMax, xMax);
+      const rangeStartX = Math.max(evaluateRangeValue(rangeMin, currentA), xMin);
+      const rangeEndX = Math.min(evaluateRangeValue(rangeMax, currentA), xMax);
       
       if (rangeStartX < rangeEndX) {
         // Find min and max values in the range
@@ -467,20 +492,27 @@ export default function QuadraticVisualizer() {
                 </div>
 
                 {tempUseRange && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <NumberStepper
-                      value={tempRangeMin}
-                      onChange={setTempRangeMin}
-                      step={0.5}
-                      label="範囲 最小"
-                    />
-                    <NumberStepper
-                      value={tempRangeMax}
-                      onChange={setTempRangeMax}
-                      step={0.5}
-                      label="範囲 最大"
-                    />
-                  </div>
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      <NumberStepper
+                        value={tempRangeMin}
+                        onChange={setTempRangeMin}
+                        step={0.5}
+                        label="範囲 最小"
+                        allowString={true}
+                      />
+                      <NumberStepper
+                        value={tempRangeMax}
+                        onChange={setTempRangeMax}
+                        step={0.5}
+                        label="範囲 最大"
+                        allowString={true}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      ※ 数値または 'a' を入力できます
+                    </p>
+                  </>
                 )}
               </div>
 

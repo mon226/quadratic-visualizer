@@ -47,13 +47,10 @@ export default function QuadraticVisualizer() {
   );
 
   // Format equation to readable mathematical notation
-  const formatEquation = (eq, aValue) => {
+  const formatEquation = (eq) => {
     if (!eq) return '';
     
     let formatted = eq;
-    
-    // Replace a with current value
-    formatted = formatted.replace(/a/g, `(${aValue})`);
     
     // Replace ^ with superscript notation
     formatted = formatted.replace(/x\^2/g, 'x²');
@@ -62,12 +59,12 @@ export default function QuadraticVisualizer() {
     
     // Replace * with proper multiplication or nothing
     formatted = formatted.replace(/\*x/g, 'x');
-    formatted = formatted.replace(/\*/g, '·');
+    formatted = formatted.replace(/\*a/g, 'a');
+    formatted = formatted.replace(/\*/g, '');
     
     // Clean up unnecessary parentheses and signs
     formatted = formatted.replace(/\+\-/g, '-');
     formatted = formatted.replace(/\-\-/g, '+');
-    formatted = formatted.replace(/\(\-?[0-9.]+\)/g, (match) => match.slice(1, -1));
     
     // Add spacing around operators
     formatted = formatted.replace(/([+-])/g, ' $1 ');
@@ -277,8 +274,7 @@ export default function QuadraticVisualizer() {
           </p>
           {equation && (
             <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-gray-600">現在の式（a = {currentA}）：</p>
-              <p className="text-lg font-semibold text-blue-900">y = {formatEquation(equation, currentA)}</p>
+              <p className="text-lg font-semibold text-blue-900">y = {formatEquation(equation)}</p>
             </div>
           )}
         </div>

@@ -347,19 +347,54 @@ export default function QuadraticVisualizer() {
 
   }, [equation, xMin, xMax, yMin, yMax, currentA, useRange, rangeMin, rangeMax]);
 
+  // Calculate valid range for a based on range constraints
+  const getValidARange = () => {
+    if (!useRange) return { min: aMin, max: aMax };
+    
+    let validMin = aMin;
+    let validMax = aMax;
+    
+    // If rangeMin is 'a' and rangeMax is a number
+    if (rangeMin === 'a' && typeof parseFloat(rangeMax) === 'number') {
+      const maxVal = parseFloat(rangeMax);
+      // a must be <= maxVal for a valid range
+      validMax = Math.min(validMax, maxVal);
+    }
+    
+    // If rangeMin is a number and rangeMax is 'a'
+    if (typeof parseFloat(rangeMin) === 'number' && rangeMax === 'a') {
+      const minVal = parseFloat(rangeMin);
+      // a must be >= minVal for a valid range
+      validMin = Math.max(validMin, minVal);
+    }
+    
+    // If both are 'a', any value is valid
+    // If both are numbers, any value is valid
+    
+    return { min: validMin, max: validMax };
+  };
+
   // Animation loop
   useEffect(() => {
     if (isAnimating) {
+      const { min: validMin, max: validMax } = getValidARange();
+      
       const animate = () => {
         setCurrentA((prev) => {
-          const next = prev + (aMax - aMin) / 200 * 0.75;
-          if (next > aMax) {
-            return aMin;
+          const next = prev + (validMax - validMin) / 200 * 0.75;
+          if (next > validMax) {
+            return validMin;
           }
           return next;
         });
         animationRef.current = requestAnimationFrame(animate);
       };
+      
+      // Set initial value within valid range
+      if (currentA < validMin || currentA > validMax) {
+        setCurrentA(validMin);
+      }
+      
       animationRef.current = requestAnimationFrame(animate);
     } else {
       if (animationRef.current) {
@@ -372,7 +407,7 @@ export default function QuadraticVisualizer() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isAnimating, aMin, aMax]);
+  }, [isAnimating, aMin, aMax, useRange, rangeMin, rangeMax]);
 
   const handleReset = () => {
     setCurrentA(typeof aMin === 'number' ? aMin : 0);

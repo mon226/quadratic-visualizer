@@ -240,6 +240,80 @@ export default function QuadraticVisualizer() {
     }
     ctx.stroke();
 
+    // Draw min/max points if range is enabled
+    if (useRange) {
+      const rangeStartX = Math.max(rangeMin, xMin);
+      const rangeEndX = Math.min(rangeMax, xMax);
+      
+      if (rangeStartX < rangeEndX) {
+        // Find min and max values in the range
+        let minY = Infinity;
+        let maxY = -Infinity;
+        let minX = rangeStartX;
+        let maxX = rangeStartX;
+        
+        // Check many points in the range
+        const numPoints = 200;
+        for (let i = 0; i <= numPoints; i++) {
+          const x = rangeStartX + (i / numPoints) * (rangeEndX - rangeStartX);
+          const y = evaluateEquation(x, currentA);
+          
+          if (y !== null && !isNaN(y) && isFinite(y)) {
+            if (y < minY) {
+              minY = y;
+              minX = x;
+            }
+            if (y > maxY) {
+              maxY = y;
+              maxX = x;
+            }
+          }
+        }
+        
+        // Also check the endpoints
+        const startY = evaluateEquation(rangeStartX, currentA);
+        const endY = evaluateEquation(rangeEndX, currentA);
+        
+        if (startY !== null && !isNaN(startY) && isFinite(startY)) {
+          if (startY < minY) {
+            minY = startY;
+            minX = rangeStartX;
+          }
+          if (startY > maxY) {
+            maxY = startY;
+            maxX = rangeStartX;
+          }
+        }
+        
+        if (endY !== null && !isNaN(endY) && isFinite(endY)) {
+          if (endY < minY) {
+            minY = endY;
+            minX = rangeEndX;
+          }
+          if (endY > maxY) {
+            maxY = endY;
+            maxX = rangeEndX;
+          }
+        }
+        
+        // Draw min point (red)
+        if (isFinite(minY)) {
+          ctx.fillStyle = '#ff0000';
+          ctx.beginPath();
+          ctx.arc(toCanvasX(minX), toCanvasY(minY), 6, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+        
+        // Draw max point (green)
+        if (isFinite(maxY)) {
+          ctx.fillStyle = '#00ff00';
+          ctx.beginPath();
+          ctx.arc(toCanvasX(maxX), toCanvasY(maxY), 6, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      }
+    }
+
   }, [equation, xMin, xMax, yMin, yMax, currentA, useRange, rangeMin, rangeMax]);
 
   // Animation loop

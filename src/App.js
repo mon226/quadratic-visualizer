@@ -375,7 +375,7 @@ export default function QuadraticVisualizer() {
   }, [isAnimating, aMin, aMax]);
 
   const handleReset = () => {
-    setCurrentA(aMin);
+    setCurrentA(typeof aMin === 'number' ? aMin : 0);
     setIsAnimating(false);
   };
 
@@ -534,7 +534,7 @@ export default function QuadraticVisualizer() {
                   setRangeMax(tempRangeMax);
                   // Reset current A if it's outside the new range
                   if (currentA < tempAMin || currentA > tempAMax) {
-                    setCurrentA(tempAMin);
+                    setCurrentA(typeof tempAMin === 'number' ? tempAMin : 0);
                   }
                 }}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition mt-4"
@@ -572,7 +572,7 @@ export default function QuadraticVisualizer() {
           </div>
 
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            aの値: {currentA.toFixed(3)}
+            aの値: {typeof currentA === 'number' ? currentA.toFixed(3) : '0.000'}
           </label>
           <input
             type="range"
@@ -581,8 +581,11 @@ export default function QuadraticVisualizer() {
             step={(aMax - aMin) / 100}
             value={currentA}
             onChange={(e) => {
-              setCurrentA(parseFloat(e.target.value));
-              setIsAnimating(false);
+              const value = parseFloat(e.target.value);
+              if (!isNaN(value)) {
+                setCurrentA(value);
+                setIsAnimating(false);
+              }
             }}
             className="w-full"
           />

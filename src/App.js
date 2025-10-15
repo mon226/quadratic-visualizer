@@ -12,6 +12,9 @@ export default function QuadraticVisualizer() {
   const [currentA, setCurrentA] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [useRange, setUseRange] = useState(false);
+  const [rangeMin, setRangeMin] = useState(0);
+  const [rangeMax, setRangeMax] = useState(4);
   
   // Temporary settings state
   const [tempXMin, setTempXMin] = useState(-5);
@@ -20,6 +23,9 @@ export default function QuadraticVisualizer() {
   const [tempYMax, setTempYMax] = useState(10);
   const [tempAMin, setTempAMin] = useState(-2);
   const [tempAMax, setTempAMax] = useState(2);
+  const [tempUseRange, setTempUseRange] = useState(false);
+  const [tempRangeMin, setTempRangeMin] = useState(0);
+  const [tempRangeMax, setTempRangeMax] = useState(4);
   
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
@@ -105,6 +111,22 @@ export default function QuadraticVisualizer() {
     // Transform coordinates
     const toCanvasX = (x) => ((x - xMin) / (xMax - xMin)) * width;
     const toCanvasY = (y) => height - ((y - yMin) / (yMax - yMin)) * height;
+
+    // Draw range highlight if enabled
+    if (useRange) {
+      const rangeStartX = Math.max(rangeMin, xMin);
+      const rangeEndX = Math.min(rangeMax, xMax);
+      
+      if (rangeStartX < rangeEndX) {
+        ctx.fillStyle = 'rgba(255, 235, 59, 0.3)'; // Yellow with 30% opacity
+        ctx.fillRect(
+          toCanvasX(rangeStartX),
+          0,
+          toCanvasX(rangeEndX) - toCanvasX(rangeStartX),
+          height
+        );
+      }
+    }
 
     // Draw grid
     ctx.strokeStyle = '#e0e0e0';
@@ -218,7 +240,7 @@ export default function QuadraticVisualizer() {
     }
     ctx.stroke();
 
-  }, [equation, xMin, xMax, yMin, yMax, currentA]);
+  }, [equation, xMin, xMax, yMin, yMax, currentA, useRange, rangeMin, rangeMax]);
 
   // Animation loop
   useEffect(() => {
@@ -334,6 +356,9 @@ export default function QuadraticVisualizer() {
                 setTempYMax(yMax);
                 setTempAMin(aMin);
                 setTempAMax(aMax);
+                setTempUseRange(useRange);
+                setTempRangeMin(rangeMin);
+                setTempRangeMax(rangeMax);
               }
             }}
             className="w-full text-left font-semibold text-gray-700 mb-3 flex items-center justify-between"
@@ -385,6 +410,38 @@ export default function QuadraticVisualizer() {
                 />
               </div>
 
+              <div className="border-t pt-3 mt-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="checkbox"
+                    id="useRange"
+                    checked={tempUseRange}
+                    onChange={(e) => setTempUseRange(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded"
+                  />
+                  <label htmlFor="useRange" className="text-sm font-medium text-gray-700">
+                    範囲指定を有効にする
+                  </label>
+                </div>
+
+                {tempUseRange && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <NumberStepper
+                      value={tempRangeMin}
+                      onChange={setTempRangeMin}
+                      step={0.5}
+                      label="範囲 最小"
+                    />
+                    <NumberStepper
+                      value={tempRangeMax}
+                      onChange={setTempRangeMax}
+                      step={0.5}
+                      label="範囲 最大"
+                    />
+                  </div>
+                )}
+              </div>
+
               <button
                 onClick={() => {
                   setXMin(tempXMin);
@@ -393,6 +450,9 @@ export default function QuadraticVisualizer() {
                   setYMax(tempYMax);
                   setAMin(tempAMin);
                   setAMax(tempAMax);
+                  setUseRange(tempUseRange);
+                  setRangeMin(tempRangeMin);
+                  setRangeMax(tempRangeMax);
                   // Reset current A if it's outside the new range
                   if (currentA < tempAMin || currentA > tempAMax) {
                     setCurrentA(tempAMin);

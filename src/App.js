@@ -120,6 +120,47 @@ export default function QuadraticVisualizer() {
       ctx.stroke();
     }
 
+    // Draw scale labels
+    ctx.fillStyle = '#000';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+
+    // X-axis labels
+    const xLabelStep = Math.ceil((xMax - xMin) / 10);
+    for (let x = Math.ceil(xMin); x <= xMax; x += xLabelStep) {
+      if (x !== 0) { // Skip 0 to avoid overlap with y-axis
+        const canvasX = toCanvasX(x);
+        if (yMin <= 0 && yMax >= 0) {
+          ctx.fillText(x.toString(), canvasX, toCanvasY(0) + 5);
+        } else {
+          ctx.fillText(x.toString(), canvasX, height - 20);
+        }
+      }
+    }
+
+    // Y-axis labels
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    const yLabelStep = Math.ceil((yMax - yMin) / 10);
+    for (let y = Math.ceil(yMin); y <= yMax; y += yLabelStep) {
+      if (y !== 0) { // Skip 0 to avoid overlap with x-axis
+        const canvasY = toCanvasY(y);
+        if (xMin <= 0 && xMax >= 0) {
+          ctx.fillText(y.toString(), toCanvasX(0) - 5, canvasY);
+        } else {
+          ctx.fillText(y.toString(), 30, canvasY);
+        }
+      }
+    }
+
+    // Draw origin label
+    if (xMin <= 0 && xMax >= 0 && yMin <= 0 && yMax >= 0) {
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'top';
+      ctx.fillText('0', toCanvasX(0) - 5, toCanvasY(0) + 5);
+    }
+
     // Draw the function
     ctx.strokeStyle = '#2563eb';
     ctx.lineWidth = 2.5;

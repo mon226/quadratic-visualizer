@@ -102,8 +102,10 @@ export default function QuadraticVisualizer() {
   // Parse and evaluate the equation
   const evaluateEquation = (x, a) => {
     try {
+      // Replace × with * for multiplication (handle both ASCII and Unicode)
+      let expr = equation.replace(/×/g, '*').replace(/\u00D7/g, '*');
       // Replace ^ with ** for exponentiation
-      let expr = equation.replace(/\^/g, '**');
+      expr = expr.replace(/\^/g, '**');
       // Replace a with the actual value
       expr = expr.replace(/a/g, `(${a})`);
       // Replace x with the actual value
@@ -143,12 +145,13 @@ export default function QuadraticVisualizer() {
       const rangeStartX = Math.max(evaluateRangeValue(rangeMin, currentA), xMin);
       const rangeEndX = Math.min(evaluateRangeValue(rangeMax, currentA), xMax);
       
-      if (rangeStartX < rangeEndX) {
+      if (rangeStartX <= rangeEndX) { // Allow equal values for single point
         ctx.fillStyle = 'rgba(255, 235, 59, 0.3)'; // Yellow with 30% opacity
+        const width = Math.max(toCanvasX(rangeEndX) - toCanvasX(rangeStartX), 1); // Minimum 1px width
         ctx.fillRect(
           toCanvasX(rangeStartX),
           0,
-          toCanvasX(rangeEndX) - toCanvasX(rangeStartX),
+          width,
           height
         );
       }
@@ -271,7 +274,7 @@ export default function QuadraticVisualizer() {
       const rangeStartX = Math.max(evaluateRangeValue(rangeMin, currentA), xMin);
       const rangeEndX = Math.min(evaluateRangeValue(rangeMax, currentA), xMax);
       
-      if (rangeStartX < rangeEndX) {
+      if (rangeStartX <= rangeEndX) { // Allow equal values for single point
         // Find min and max values in the range
         let minY = Infinity;
         let maxY = -Infinity;
@@ -279,9 +282,11 @@ export default function QuadraticVisualizer() {
         let maxX = rangeStartX;
         
         // Check many points in the range
-        const numPoints = 200;
+        const rangeWidth = rangeEndX - rangeStartX;
+        const numPoints = rangeWidth > 0.01 ? 200 : 2; // Use fewer points for very small ranges
+        
         for (let i = 0; i <= numPoints; i++) {
-          const x = rangeStartX + (i / numPoints) * (rangeEndX - rangeStartX);
+          const x = rangeStartX + (i / numPoints) * rangeWidth;
           const y = evaluateEquation(x, currentA);
           
           if (y !== null && !isNaN(y) && isFinite(y)) {
@@ -399,7 +404,7 @@ export default function QuadraticVisualizer() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                ※ べき乗は ^ 、掛け算は * を使用（例: 2*a, x^2, -1*x^2）
+                ※ べき乗は ^ 、掛け算は * または × を使用（例: 2*a, 2×a, x^2）
               </p>
             </>
           ) : (

@@ -190,11 +190,6 @@ export default function QuadraticVisualizer() {
     }
     ctx.stroke();
 
-    // Draw current a value
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 16px sans-serif';
-    ctx.fillText(`a = ${currentA.toFixed(3)}`, 10, 25);
-
   }, [equation, xMin, xMax, yMin, yMax, currentA]);
 
   // Animation loop

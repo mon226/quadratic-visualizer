@@ -46,6 +46,37 @@ export default function QuadraticVisualizer() {
     </div>
   );
 
+  // Format equation to readable mathematical notation
+  const formatEquation = (eq, aValue) => {
+    if (!eq) return '';
+    
+    let formatted = eq;
+    
+    // Replace a with current value
+    formatted = formatted.replace(/a/g, `(${aValue})`);
+    
+    // Replace ^ with superscript notation
+    formatted = formatted.replace(/x\^2/g, 'x²');
+    formatted = formatted.replace(/x\^3/g, 'x³');
+    formatted = formatted.replace(/x\^4/g, 'x⁴');
+    
+    // Replace * with proper multiplication or nothing
+    formatted = formatted.replace(/\*x/g, 'x');
+    formatted = formatted.replace(/\*/g, '·');
+    
+    // Clean up unnecessary parentheses and signs
+    formatted = formatted.replace(/\+\-/g, '-');
+    formatted = formatted.replace(/\-\-/g, '+');
+    formatted = formatted.replace(/\(\-?[0-9.]+\)/g, (match) => match.slice(1, -1));
+    
+    // Add spacing around operators
+    formatted = formatted.replace(/([+-])/g, ' $1 ');
+    formatted = formatted.replace(/^\s+|\s+$/g, '');
+    formatted = formatted.replace(/\s+/g, ' ');
+    
+    return formatted;
+  };
+
   // Parse and evaluate the equation
   const evaluateEquation = (x, a) => {
     try {
@@ -244,6 +275,12 @@ export default function QuadraticVisualizer() {
           <p className="text-xs text-gray-500 mt-1">
             ※ べき乗は ^ 、掛け算は * を使用（例: 2*a, x^2, -1*x^2）
           </p>
+          {equation && (
+            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-gray-600">現在の式（a = {currentA}）：</p>
+              <p className="text-lg font-semibold text-blue-900">y = {formatEquation(equation, currentA)}</p>
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-4 mb-4">

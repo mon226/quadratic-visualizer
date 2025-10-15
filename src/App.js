@@ -145,9 +145,9 @@ export default function QuadraticVisualizer() {
       const rangeStartX = Math.max(evaluateRangeValue(rangeMin, currentA), xMin);
       const rangeEndX = Math.min(evaluateRangeValue(rangeMax, currentA), xMax);
       
-      if (rangeStartX <= rangeEndX) { // Allow equal values for single point
+      if (rangeStartX <= rangeEndX) { // Allow equal values for single point (e.g., x = 4)
         ctx.fillStyle = 'rgba(255, 235, 59, 0.3)'; // Yellow with 30% opacity
-        const width = Math.max(toCanvasX(rangeEndX) - toCanvasX(rangeStartX), 1); // Minimum 1px width
+        const width = Math.max(toCanvasX(rangeEndX) - toCanvasX(rangeStartX), 1); // Minimum 1px width for single point
         ctx.fillRect(
           toCanvasX(rangeStartX),
           0,
@@ -274,7 +274,7 @@ export default function QuadraticVisualizer() {
       const rangeStartX = Math.max(evaluateRangeValue(rangeMin, currentA), xMin);
       const rangeEndX = Math.min(evaluateRangeValue(rangeMax, currentA), xMax);
       
-      if (rangeStartX <= rangeEndX) { // Allow equal values for single point
+      if (rangeStartX <= rangeEndX) { // Allow equal values for single point (e.g., x = 4)
         // Find min and max values in the range
         let minY = Infinity;
         let maxY = -Infinity;

@@ -227,10 +227,6 @@ export default function QuadraticVisualizer() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-          2次関数グラフビジュアライザー
-        </h1>
-
         <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             関数式
@@ -246,7 +242,7 @@ export default function QuadraticVisualizer() {
             />
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            ※ べき乗は ^ 、掛け算は * を使用（例: 2*a, x^2）
+            ※ べき乗は ^ 、掛け算は * を使用（例: 2*a, x^2, -1*x^2）
           </p>
         </div>
 

@@ -202,7 +202,7 @@ export default function QuadraticVisualizer() {
     if (isAnimating) {
       const animate = () => {
         setCurrentA((prev) => {
-          const next = prev + (aMax - aMin) / 200;
+          const next = prev + (aMax - aMin) / 200 * 0.75;
           if (next > aMax) {
             return aMin;
           }

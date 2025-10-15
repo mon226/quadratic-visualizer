@@ -119,13 +119,12 @@ export default function QuadraticVisualizer() {
 
   // Draw the graph
   useEffect(() => {
-    try {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-      const ctx = canvas.getContext('2d');
-      const width = canvas.width;
-      const height = canvas.height;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
 
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
@@ -345,51 +344,32 @@ export default function QuadraticVisualizer() {
         }
       }
     }
-    } catch (error) {
-      console.error('Graph drawing error:', error);
-    }
+
   }, [equation, xMin, xMax, yMin, yMax, currentA, useRange, rangeMin, rangeMax]);
 
   // Animation loop
   useEffect(() => {
     if (isAnimating) {
       const animate = () => {
-        try {
-          setCurrentA((prev) => {
-            // Ensure prev is a number
-            const currentValue = typeof prev === 'number' ? prev : aMin;
-            const minValue = typeof aMin === 'number' ? aMin : 0;
-            const maxValue = typeof aMax === 'number' ? aMax : 1;
-            
-            if (minValue >= maxValue) {
-              setIsAnimating(false);
-              return currentValue;
-            }
-            
-            const next = currentValue + (maxValue - minValue) / 200 * 0.75;
-            if (next > maxValue) {
-              return minValue;
-            }
-            return next;
-          });
-          animationRef.current = requestAnimationFrame(animate);
-        } catch (error) {
-          console.error('Animation error:', error);
-          setIsAnimating(false);
-        }
+        setCurrentA((prev) => {
+          const next = prev + (aMax - aMin) / 200 * 0.75;
+          if (next > aMax) {
+            return aMin;
+          }
+          return next;
+        });
+        animationRef.current = requestAnimationFrame(animate);
       };
       animationRef.current = requestAnimationFrame(animate);
     } else {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
       }
     }
 
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
       }
     };
   }, [isAnimating, aMin, aMax]);

@@ -24,6 +24,28 @@ export default function QuadraticVisualizer() {
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
 
+  // Number stepper component
+  const NumberStepper = ({ value, onChange, step = 1, label }) => (
+    <div>
+      <label className="block text-sm text-gray-600 mb-1">{label}</label>
+      <div className="flex items-center justify-center gap-2">
+        <button
+          onClick={() => onChange(value - step)}
+          className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center transition"
+        >
+          ◁
+        </button>
+        <div className="w-16 text-center font-semibold">{value}</div>
+        <button
+          onClick={() => onChange(value + step)}
+          className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded flex items-center justify-center transition"
+        >
+          ▷
+        </button>
+      </div>
+    </div>
+  );
+
   // Parse and evaluate the equation
   const evaluateEquation = (x, a) => {
     try {
@@ -255,66 +277,44 @@ export default function QuadraticVisualizer() {
           {showSettings && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">X軸 最小</label>
-                  <input
-                    type="number"
-                    value={tempXMin}
-                    onChange={(e) => setTempXMin(parseFloat(e.target.value))}
-                    className="w-full px-2 py-1 border border-gray-300 rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">X軸 最大</label>
-                  <input
-                    type="number"
-                    value={tempXMax}
-                    onChange={(e) => setTempXMax(parseFloat(e.target.value))}
-                    className="w-full px-2 py-1 border border-gray-300 rounded"
-                  />
-                </div>
+                <NumberStepper
+                  value={tempXMin}
+                  onChange={setTempXMin}
+                  label="X軸 最小"
+                />
+                <NumberStepper
+                  value={tempXMax}
+                  onChange={setTempXMax}
+                  label="X軸 最大"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">Y軸 最小</label>
-                  <input
-                    type="number"
-                    value={tempYMin}
-                    onChange={(e) => setTempYMin(parseFloat(e.target.value))}
-                    className="w-full px-2 py-1 border border-gray-300 rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">Y軸 最大</label>
-                  <input
-                    type="number"
-                    value={tempYMax}
-                    onChange={(e) => setTempYMax(parseFloat(e.target.value))}
-                    className="w-full px-2 py-1 border border-gray-300 rounded"
-                  />
-                </div>
+                <NumberStepper
+                  value={tempYMin}
+                  onChange={setTempYMin}
+                  label="Y軸 最小"
+                />
+                <NumberStepper
+                  value={tempYMax}
+                  onChange={setTempYMax}
+                  label="Y軸 最大"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">a 最小</label>
-                  <input
-                    type="number"
-                    value={tempAMin}
-                    onChange={(e) => setTempAMin(parseFloat(e.target.value))}
-                    className="w-full px-2 py-1 border border-gray-300 rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">a 最大</label>
-                  <input
-                    type="number"
-                    value={tempAMax}
-                    onChange={(e) => setTempAMax(parseFloat(e.target.value))}
-                    className="w-full px-2 py-1 border border-gray-300 rounded"
-                  />
-                </div>
+                <NumberStepper
+                  value={tempAMin}
+                  onChange={setTempAMin}
+                  step={0.1}
+                  label="a 最小"
+                />
+                <NumberStepper
+                  value={tempAMax}
+                  onChange={setTempAMax}
+                  step={0.1}
+                  label="a 最大"
+                />
               </div>
 
               <button
